@@ -10,6 +10,8 @@
 - (void)subscribe: (CDVInvokedUrlCommand *)command;
 - (void)unsubscribe: (CDVInvokedUrlCommand *)command;
 
+@property (strong, nonatomic) NSDictionary* launchOptionsForAppTracking;
+
 @end
 
 @interface AppDelegate (CDVParsePlugin)

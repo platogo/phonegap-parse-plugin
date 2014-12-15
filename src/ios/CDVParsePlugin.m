@@ -6,12 +6,28 @@
 
 @implementation CDVParsePlugin
 
+- (void) pluginInitialize
+{
+    NSNotificationCenter* notificationCenter = [NSNotificationCenter
+                                                defaultCenter];
+
+    [notificationCenter addObserver:self
+                           selector:@selector(didFinishLaunchingWithOptions:)
+                               name:UIApplicationDidFinishLaunchingNotification
+                             object:nil];
+}
+
 - (void)initialize: (CDVInvokedUrlCommand*)command
 {
     CDVPluginResult* pluginResult = nil;
     NSString *appId = [command.arguments objectAtIndex:0];
     NSString *clientKey = [command.arguments objectAtIndex:1];
     [Parse setApplicationId:appId clientKey:clientKey];
+
+    if (self.launchOptionsForAppTracking != nil) {
+        [PFAnalytics trackAppOpenedWithLaunchOptions:self.launchOptionsForAppTracking];
+    }
+
     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
@@ -84,6 +100,25 @@
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
+- (void) didFinishLaunchingWithOptions:(NSNotification*)notification
+{
+    UIApplication* application = [UIApplication sharedApplication];
+    NSDictionary* launchOptions = [notification userInfo];
+
+    if (application.applicationState != UIApplicationStateBackground) {
+        // Track an app open here if we launch with a push, unless
+        // "content_available" was used to trigger a background push (introduced
+        // in iOS 7). In that case, we skip tracking here to avoid double
+        // counting the app-open.
+        BOOL preBackgroundPush = ![application respondsToSelector:@selector(backgroundRefreshStatus)];
+        BOOL oldPushHandlerOnly = ![self respondsToSelector:@selector(application:didReceiveRemoteNotification:fetchCompletionHandler:)];
+        BOOL noPushPayload = ![launchOptions objectForKey:UIApplicationLaunchOptionsRemoteNotificationKey];
+        if (preBackgroundPush || oldPushHandlerOnly || noPushPayload) {
+            self.launchOptionsForAppTracking = launchOptions;
+        }
+    }
+}
+
 @end
 
 @implementation AppDelegate (CDVParsePlugin)
@@ -131,7 +166,12 @@ void MethodSwizzle(Class c, SEL originalSelector) {
 {
     // Call existing method
     [self swizzled_application:application didReceiveRemoteNotification:userInfo];
-    [PFPush handlePush:userInfo];
+
+    if (application.applicationState == UIApplicationStateInactive) {
+        // The application was just brought from the background to the foreground,
+        // so we consider the app as having been "opened by a push notification."
+        [PFAnalytics trackAppOpenedWithRemoteNotificationPayload:userInfo];
+    }
 }
 
 @end
