@@ -80,24 +80,36 @@
             UIRemoteNotificationTypeSound];
     }
 
-    CDVPluginResult* pluginResult = nil;
     PFInstallation *currentInstallation = [PFInstallation currentInstallation];
     NSString *channel = [command.arguments objectAtIndex:0];
     [currentInstallation addUniqueObject:channel forKey:@"channels"];
-    [currentInstallation saveInBackground];
-    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    [currentInstallation saveInBackgroundWithBlock:^(BOOL succeeded, NSError *error) {
+      CDVPluginResult* pluginResult = nil;
+      if (succeeded) {
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+      } else {
+          pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
+          [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+      }
+    }];
 }
 
 - (void)unsubscribe: (CDVInvokedUrlCommand *)command
 {
-    CDVPluginResult* pluginResult = nil;
     PFInstallation *currentInstallation = [PFInstallation currentInstallation];
     NSString *channel = [command.arguments objectAtIndex:0];
     [currentInstallation removeObject:channel forKey:@"channels"];
-    [currentInstallation saveInBackground];
-    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    [currentInstallation saveInBackgroundWithBlock:^(BOOL succeeded, NSError *error) {
+      CDVPluginResult* pluginResult = nil;
+      if (succeeded) {
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+      } else {
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+      }
+    }];
 }
 
 - (void) didFinishLaunchingWithOptions:(NSNotification*)notification
