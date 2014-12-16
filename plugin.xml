@@ -72,7 +72,10 @@
         <framework src="Security.framework" />
         <framework src="StoreKit.framework" />
         <framework src="SystemConfiguration.framework" />
+        <framework src="Social.framework" />
+        <framework src="Accounts.framework" />
+        <framework src="libsqlite3.0.dylib" />
         <framework src="src/ios/Frameworks/Parse.framework" custom="true" />
     </platform>
-          
+
 </plugin>
