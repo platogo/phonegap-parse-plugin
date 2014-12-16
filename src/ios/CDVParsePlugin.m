@@ -23,7 +23,7 @@
     if (self.launchOptionsForAppTracking != nil) {
         [PFAnalytics trackAppOpenedWithLaunchOptions:self.launchOptionsForAppTracking];
 
-        NSDictionary *payload = [[self.launchOptionsForAppTracking objectForKey:@"UIApplicationLaunchOptionsRemoteNotificationKey"] objectForKey:@"aps"];
+        NSDictionary *payload = [self.launchOptionsForAppTracking objectForKey:@"UIApplicationLaunchOptionsRemoteNotificationKey"];
         [self triggerEvent:payload];
     }
 
@@ -191,9 +191,8 @@ void MethodSwizzle(Class c, SEL originalSelector) {
         // so we consider the app as having been "opened by a push notification."
         [PFAnalytics trackAppOpenedWithRemoteNotificationPayload:userInfo];
 
-        NSDictionary *payload = [userInfo objectForKey:@"aps"];
         CDVParsePlugin *parsePlugin = [self.viewController getCommandInstance:@"parseplugin"];
-        [parsePlugin triggerEvent:payload];
+        [parsePlugin triggerEvent:userInfo];
     }
 }
 
