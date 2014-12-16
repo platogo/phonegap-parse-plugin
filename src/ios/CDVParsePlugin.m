@@ -6,15 +6,11 @@
 
 @implementation CDVParsePlugin
 
-- (void) pluginInitialize
+- (void)pluginInitialize
 {
-    NSNotificationCenter* notificationCenter = [NSNotificationCenter
-                                                defaultCenter];
-
-    [notificationCenter addObserver:self
-                           selector:@selector(didFinishLaunchingWithOptions:)
-                               name:UIApplicationDidFinishLaunchingNotification
-                             object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(didFinishLaunchingWithOptions:)
+                                                 name:UIApplicationDidFinishLaunchingNotification object:nil];
 }
 
 - (void)initialize: (CDVInvokedUrlCommand*)command
@@ -26,6 +22,9 @@
 
     if (self.launchOptionsForAppTracking != nil) {
         [PFAnalytics trackAppOpenedWithLaunchOptions:self.launchOptionsForAppTracking];
+
+        NSDictionary *payload = [[self.launchOptionsForAppTracking objectForKey:@"UIApplicationLaunchOptionsRemoteNotificationKey"] objectForKey:@"aps"];
+        [self triggerEvent:payload];
     }
 
     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
@@ -112,7 +111,7 @@
     }];
 }
 
-- (void) didFinishLaunchingWithOptions:(NSNotification*)notification
+- (void)didFinishLaunchingWithOptions:(NSNotification*)notification
 {
     UIApplication* application = [UIApplication sharedApplication];
     NSDictionary* launchOptions = [notification userInfo];
@@ -129,6 +128,14 @@
             self.launchOptionsForAppTracking = launchOptions;
         }
     }
+}
+
+- (void)triggerEvent:(NSDictionary*)payload
+{
+    NSData* jsonData = [NSJSONSerialization dataWithJSONObject:payload options:0 error:nil];
+    NSString* json = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+    NSString* js = [NSString stringWithFormat:@"parsePlugin.onopen(%@)", json];
+    [self.commandDelegate evalJs:js];
 }
 
 @end
@@ -183,6 +190,10 @@ void MethodSwizzle(Class c, SEL originalSelector) {
         // The application was just brought from the background to the foreground,
         // so we consider the app as having been "opened by a push notification."
         [PFAnalytics trackAppOpenedWithRemoteNotificationPayload:userInfo];
+
+        NSDictionary *payload = [userInfo objectForKey:@"aps"];
+        CDVParsePlugin *parsePlugin = [self.viewController getCommandInstance:@"parseplugin"];
+        [parsePlugin triggerEvent:payload];
     }
 }
 

@@ -57,6 +57,8 @@ var parsePlugin = {
             'unsubscribe',
             [ channel ]
         );
-    }
+    },
+
+    onopen: function(payload) {}
 };
 module.exports = parsePlugin;
