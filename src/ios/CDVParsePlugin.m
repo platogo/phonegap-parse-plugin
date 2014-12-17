@@ -15,9 +15,10 @@
 
 - (void)initialize: (CDVInvokedUrlCommand*)command
 {
-    CDVPluginResult* pluginResult = nil;
     NSString *appId = [command.arguments objectAtIndex:0];
     NSString *clientKey = [command.arguments objectAtIndex:1];
+    NSNumber *uniqueId = [command.arguments objectAtIndex:2];
+
     [Parse setApplicationId:appId clientKey:clientKey];
 
     if (self.launchOptionsForAppTracking != nil) {
@@ -27,8 +28,19 @@
         [self triggerEvent:payload];
     }
 
-    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    PFInstallation *currentInstallation = [PFInstallation currentInstallation];
+    currentInstallation[@"uniqueId"] = uniqueId;
+
+    [currentInstallation saveInBackgroundWithBlock:^(BOOL succeeded, NSError *error) {
+        CDVPluginResult* pluginResult = nil;
+        if (succeeded) {
+            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+            [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+        } else {
+            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
+            [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+        }
+    }];
 }
 
 - (void)getInstallationId:(CDVInvokedUrlCommand*) command

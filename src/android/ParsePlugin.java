@@ -34,7 +34,7 @@ public class ParsePlugin extends CordovaPlugin {
     @Override
     public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
         if (action.equals(ACTION_INITIALIZE)) {
-            this.initialize(callbackContext, args);
+            this.initialize(args.getInt(2), callbackContext);
             return true;
         }
         if (action.equals(ACTION_GET_INSTALLATION_ID)) {
@@ -70,7 +70,7 @@ public class ParsePlugin extends CordovaPlugin {
         }
     }
 
-    private void initialize(final CallbackContext callbackContext, final JSONArray args) {
+    private void initialize(final int uniqueId, final CallbackContext callbackContext) {
         ParsePlugin.webView = super.webView;
         ParsePlugin.context = super.cordova.getActivity().getApplicationContext();
 
@@ -78,10 +78,9 @@ public class ParsePlugin extends CordovaPlugin {
 
         cordova.getThreadPool().execute(new Runnable() {
             public void run() {
-                ParseInstallation installation = ParseInstallation.getCurrentInstallation();
-                String androidId = Secure.getString(cordova.getActivity().getContentResolver(), Secure.ANDROID_ID);
-                installation.put("UniqueId", androidId);
-                installation.saveInBackground(createSaveCallback(callbackContext));
+                ParseInstallation currentInstallation = ParseInstallation.getCurrentInstallation();
+                currentInstallation.put("uniqueId", uniqueId);
+                currentInstallation.saveInBackground(createSaveCallback(callbackContext));
             }
         });
 
