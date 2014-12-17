@@ -81,15 +81,7 @@ public class ParsePlugin extends CordovaPlugin {
                 ParseInstallation installation = ParseInstallation.getCurrentInstallation();
                 String androidId = Secure.getString(cordova.getActivity().getContentResolver(), Secure.ANDROID_ID);
                 installation.put("UniqueId", androidId);
-                installation.saveInBackground(new SaveCallback() {
-                    public void done(ParseException e) {
-                        if (e == null) {
-                            callbackContext.success();
-                        } else {
-                            callbackContext.error(e.toString());
-                        }
-                    }
-                });
+                installation.saveInBackground(createSaveCallback(callbackContext));
             }
         });
 
