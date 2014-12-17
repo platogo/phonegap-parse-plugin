@@ -1,24 +1,22 @@
 package org.apache.cordova.core;
 
-import java.util.List;
+import android.content.Context;
+import android.provider.Settings.Secure;
+
+import com.parse.ParseException;
+import com.parse.ParseInstallation;
+import com.parse.ParsePush;
+import com.parse.SaveCallback;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaPlugin;
+import org.apache.cordova.CordovaWebView;
 import org.apache.cordova.PluginResult;
 import org.json.JSONArray;
 import org.json.JSONException;
 
-import com.parse.Parse;
-import com.parse.ParseInstallation;
-import com.parse.ParsePush;
-import com.parse.PushService;
-import com.parse.SaveCallback;
-import com.parse.ParseException;
-
-import android.provider.Settings.Secure;
-
-// TODO
-// import com.parse.ParsePushBroadcastReceiver;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ParsePlugin extends CordovaPlugin {
     public static final String ACTION_INITIALIZE = "initialize";
@@ -27,6 +25,11 @@ public class ParsePlugin extends CordovaPlugin {
     public static final String ACTION_GET_SUBSCRIPTIONS = "getSubscriptions";
     public static final String ACTION_SUBSCRIBE = "subscribe";
     public static final String ACTION_UNSUBSCRIBE = "unsubscribe";
+
+    private static CordovaWebView webView = null;
+    private static Boolean initialized = false;
+    protected static Context context = null;
+    private static ArrayList<String> eventQueue = new ArrayList<String>();
 
     @Override
     public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
@@ -58,34 +61,43 @@ public class ParsePlugin extends CordovaPlugin {
         return false;
     }
 
+    public static void fireOpen(String json) {
+        String js = "setTimeout('parsePlugin.onopen(" + json + ")',0)";
+        if (initialized == false) {
+            eventQueue.add(js);
+        } else {
+            webView.sendJavascript(js);
+        }
+    }
+
     private void initialize(final CallbackContext callbackContext, final JSONArray args) {
+        ParsePlugin.webView = super.webView;
+        ParsePlugin.context = super.cordova.getActivity().getApplicationContext();
+
+        initialized = true;
+
         cordova.getThreadPool().execute(new Runnable() {
             public void run() {
-                try {
-                    String appId = args.getString(0);
-                    String clientKey = args.getString(1);
-                    Parse.initialize(cordova.getActivity(), appId, clientKey);
-                    PushService.setDefaultPushCallback(cordova.getActivity(), cordova.getActivity().getClass());
-
-                    ParseInstallation installation = ParseInstallation.getCurrentInstallation();
-                    String androidId = Secure.getString(cordova.getActivity().getContentResolver(), Secure.ANDROID_ID);
-                    installation.put("UniqueId", androidId);
-                    installation.saveInBackground(new SaveCallback() {
-                        public void done(ParseException e) {
-                            // TODO replace with ParsePushBroadcastReceiver
-                            // PushService.setDefaultPushCallback(cordova.getActivity(), cordova.getActivity().getClass());
-                            if (e == null) {
-                                callbackContext.success();
-                            } else {
-                                callbackContext.error(e.toString());
-                            }
+                ParseInstallation installation = ParseInstallation.getCurrentInstallation();
+                String androidId = Secure.getString(cordova.getActivity().getContentResolver(), Secure.ANDROID_ID);
+                installation.put("UniqueId", androidId);
+                installation.saveInBackground(new SaveCallback() {
+                    public void done(ParseException e) {
+                        if (e == null) {
+                            callbackContext.success();
+                        } else {
+                            callbackContext.error(e.toString());
                         }
-                    });
-                } catch (JSONException e) {
-                    callbackContext.error("JSONException");
-                }
+                    }
+                });
             }
         });
+
+        for (String js : eventQueue) {
+            webView.sendJavascript(js);
+        }
+
+        eventQueue.clear();
     }
 
     private SaveCallback createSaveCallback(final CallbackContext callbackContext) {
@@ -145,5 +157,4 @@ public class ParsePlugin extends CordovaPlugin {
             }
         });
     }
-
 }
