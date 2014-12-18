@@ -202,6 +202,8 @@ void MethodSwizzle(Class c, SEL originalSelector) {
     // Call existing method
     [self swizzled_application:application didReceiveRemoteNotification:userInfo];
 
+    [PFPush handlePush:userInfo];
+
     if (application.applicationState == UIApplicationStateInactive) {
         // The application was just brought from the background to the foreground,
         // so we consider the app as having been "opened by a push notification."
