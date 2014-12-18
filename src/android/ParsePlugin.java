@@ -20,6 +20,7 @@ import java.util.List;
 
 public class ParsePlugin extends CordovaPlugin {
     public static final String ACTION_INITIALIZE = "initialize";
+    public static final String ACTION_SET_UNIQUE_ID = "setUniqueId";
     public static final String ACTION_GET_INSTALLATION_ID = "getInstallationId";
     public static final String ACTION_GET_INSTALLATION_OBJECT_ID = "getInstallationObjectId";
     public static final String ACTION_GET_SUBSCRIPTIONS = "getSubscriptions";
@@ -34,14 +35,17 @@ public class ParsePlugin extends CordovaPlugin {
     @Override
     public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
         if (action.equals(ACTION_INITIALIZE)) {
-            this.initialize(args.getInt(2), callbackContext);
+            this.initialize(callbackContext);
+            return true;
+        }
+        if (action.equals(ACTION_SET_UNIQUE_ID)) {
+            this.setUniqueId(args.getInt(0), callbackContext);
             return true;
         }
         if (action.equals(ACTION_GET_INSTALLATION_ID)) {
             this.getInstallationId(callbackContext);
             return true;
         }
-
         if (action.equals(ACTION_GET_INSTALLATION_OBJECT_ID)) {
             this.getInstallationObjectId(callbackContext);
             return true;
@@ -70,12 +74,26 @@ public class ParsePlugin extends CordovaPlugin {
         }
     }
 
-    private void initialize(final int uniqueId, final CallbackContext callbackContext) {
+    private void initialize(final CallbackContext callbackContext) {
         ParsePlugin.webView = super.webView;
         ParsePlugin.context = super.cordova.getActivity().getApplicationContext();
 
         initialized = true;
 
+        for (String js : eventQueue) {
+            webView.sendJavascript(js);
+        }
+        eventQueue.clear();
+
+        cordova.getThreadPool().execute(new Runnable() {
+            public void run() {
+                ParseInstallation currentInstallation = ParseInstallation.getCurrentInstallation();
+                currentInstallation.saveInBackground(createSaveCallback(callbackContext));
+            }
+        });
+    }
+
+    private void setUniqueId(final int uniqueId, final CallbackContext callbackContext) {
         cordova.getThreadPool().execute(new Runnable() {
             public void run() {
                 ParseInstallation currentInstallation = ParseInstallation.getCurrentInstallation();
@@ -83,12 +101,6 @@ public class ParsePlugin extends CordovaPlugin {
                 currentInstallation.saveInBackground(createSaveCallback(callbackContext));
             }
         });
-
-        for (String js : eventQueue) {
-            webView.sendJavascript(js);
-        }
-
-        eventQueue.clear();
     }
 
     private SaveCallback createSaveCallback(final CallbackContext callbackContext) {

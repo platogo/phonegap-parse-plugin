@@ -17,7 +17,6 @@
 {
     NSString *appId = [command.arguments objectAtIndex:0];
     NSString *clientKey = [command.arguments objectAtIndex:1];
-    NSNumber *uniqueId = [command.arguments objectAtIndex:2];
 
     [Parse setApplicationId:appId clientKey:clientKey];
 
@@ -27,6 +26,14 @@
         NSDictionary *payload = [self.launchOptionsForAppTracking objectForKey:@"UIApplicationLaunchOptionsRemoteNotificationKey"];
         [self triggerEvent:payload];
     }
+
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
+- (void)setUniqueId:(CDVInvokedUrlCommand*) command
+{
+    NSNumber *uniqueId = [command.arguments objectAtIndex:0];
 
     PFInstallation *currentInstallation = [PFInstallation currentInstallation];
     currentInstallation[@"uniqueId"] = uniqueId;
@@ -150,7 +157,7 @@
 {
     NSData* jsonData = [NSJSONSerialization dataWithJSONObject:payload options:0 error:nil];
     NSString* json = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-    NSString* js = [NSString stringWithFormat:@"parsePlugin.onopen(%@)", json];
+    NSString* js = [NSString stringWithFormat:@"setTimeout('parsePlugin.onopen(%@)',0)", json];
     [self.commandDelegate evalJs:js];
 }
 
