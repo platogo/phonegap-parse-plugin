@@ -61,7 +61,7 @@ public class ParsePlugin extends CordovaPlugin {
         return false;
     }
 
-    public static void fireOpen(String json) {
+    public static void triggerEvent(String json) {
         String js = "setTimeout('parsePlugin.onopen(" + json + ")',0)";
         if (initialized == false) {
             eventQueue.add(js);

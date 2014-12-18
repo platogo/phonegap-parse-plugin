@@ -41,6 +41,6 @@ public class Receiver extends ParsePushBroadcastReceiver {
         activityIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         context.startActivity(activityIntent);
 
-        ParsePlugin.fireOpen(jsonData);
+        ParsePlugin.triggerEvent(jsonData);
     }
 }
