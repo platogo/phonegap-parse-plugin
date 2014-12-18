@@ -74,6 +74,18 @@ public class ParsePlugin extends CordovaPlugin {
         }
     }
 
+    private SaveCallback createSaveCallback(final CallbackContext callbackContext) {
+        return new SaveCallback() {
+            public void done(ParseException e) {
+                if (e == null) {
+                    callbackContext.success();
+                } else {
+                    callbackContext.error(e.toString());
+                }
+            }
+        };
+    }
+
     private void initialize(final CallbackContext callbackContext) {
         ParsePlugin.webView = super.webView;
         ParsePlugin.context = super.cordova.getActivity().getApplicationContext();
@@ -101,18 +113,6 @@ public class ParsePlugin extends CordovaPlugin {
                 currentInstallation.saveInBackground(createSaveCallback(callbackContext));
             }
         });
-    }
-
-    private SaveCallback createSaveCallback(final CallbackContext callbackContext) {
-        return new SaveCallback() {
-            public void done(ParseException e) {
-                if (e == null) {
-                    callbackContext.success();
-                } else {
-                    callbackContext.error(e.toString());
-                }
-            }
-        };
     }
 
     private void getInstallationId(final CallbackContext callbackContext) {
