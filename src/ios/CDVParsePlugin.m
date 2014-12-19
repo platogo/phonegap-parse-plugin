@@ -38,16 +38,8 @@
     PFInstallation *currentInstallation = [PFInstallation currentInstallation];
     currentInstallation[@"uniqueId"] = uniqueId;
 
-    [currentInstallation saveInBackgroundWithBlock:^(BOOL succeeded, NSError *error) {
-        CDVPluginResult* pluginResult = nil;
-        if (succeeded) {
-            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-            [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-        } else {
-            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
-            [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-        }
-    }];
+    [currentInstallation saveEventually];
+    [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_OK] callbackId:command.callbackId];
 }
 
 - (void)getInstallationId:(CDVInvokedUrlCommand*) command
@@ -105,16 +97,8 @@
     PFInstallation *currentInstallation = [PFInstallation currentInstallation];
     NSString *channel = [command.arguments objectAtIndex:0];
     [currentInstallation addUniqueObject:channel forKey:@"channels"];
-    [currentInstallation saveInBackgroundWithBlock:^(BOOL succeeded, NSError *error) {
-      CDVPluginResult* pluginResult = nil;
-      if (succeeded) {
-        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-      } else {
-          pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
-          [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-      }
-    }];
+    [currentInstallation saveEventually];
+    [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_OK] callbackId:command.callbackId];
 }
 
 - (void)unsubscribe: (CDVInvokedUrlCommand *)command
@@ -122,16 +106,8 @@
     PFInstallation *currentInstallation = [PFInstallation currentInstallation];
     NSString *channel = [command.arguments objectAtIndex:0];
     [currentInstallation removeObject:channel forKey:@"channels"];
-    [currentInstallation saveInBackgroundWithBlock:^(BOOL succeeded, NSError *error) {
-      CDVPluginResult* pluginResult = nil;
-      if (succeeded) {
-        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-      } else {
-        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
-        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-      }
-    }];
+    [currentInstallation saveEventually];
+    [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_OK] callbackId:command.callbackId];
 }
 
 - (void)didFinishLaunchingWithOptions:(NSNotification*)notification

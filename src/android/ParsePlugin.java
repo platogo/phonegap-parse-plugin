@@ -1,12 +1,9 @@
 package org.apache.cordova.core;
 
 import android.content.Context;
-import android.provider.Settings.Secure;
 
-import com.parse.ParseException;
 import com.parse.ParseInstallation;
 import com.parse.ParsePush;
-import com.parse.SaveCallback;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaPlugin;
@@ -74,18 +71,6 @@ public class ParsePlugin extends CordovaPlugin {
         }
     }
 
-    private SaveCallback createSaveCallback(final CallbackContext callbackContext) {
-        return new SaveCallback() {
-            public void done(ParseException e) {
-                if (e == null) {
-                    callbackContext.success();
-                } else {
-                    callbackContext.error(e.toString());
-                }
-            }
-        };
-    }
-
     private void initialize(final CallbackContext callbackContext) {
         ParsePlugin.webView = super.webView;
         ParsePlugin.context = super.cordova.getActivity().getApplicationContext();
@@ -100,7 +85,8 @@ public class ParsePlugin extends CordovaPlugin {
         cordova.getThreadPool().execute(new Runnable() {
             public void run() {
                 ParseInstallation currentInstallation = ParseInstallation.getCurrentInstallation();
-                currentInstallation.saveInBackground(createSaveCallback(callbackContext));
+                currentInstallation.saveEventually();
+                callbackContext.success();
             }
         });
     }
@@ -110,7 +96,8 @@ public class ParsePlugin extends CordovaPlugin {
             public void run() {
                 ParseInstallation currentInstallation = ParseInstallation.getCurrentInstallation();
                 currentInstallation.put("uniqueId", uniqueId);
-                currentInstallation.saveInBackground(createSaveCallback(callbackContext));
+                currentInstallation.saveEventually();
+                callbackContext.success();
             }
         });
     }
@@ -146,7 +133,7 @@ public class ParsePlugin extends CordovaPlugin {
     private void subscribe(final String channel, final CallbackContext callbackContext) {
         cordova.getThreadPool().execute(new Runnable() {
             public void run() {
-                ParsePush.subscribeInBackground(channel, createSaveCallback(callbackContext));
+                ParsePush.subscribeInBackground(channel);
                 callbackContext.success();
             }
         });
@@ -155,7 +142,7 @@ public class ParsePlugin extends CordovaPlugin {
     private void unsubscribe(final String channel, final CallbackContext callbackContext) {
         cordova.getThreadPool().execute(new Runnable() {
             public void run() {
-                ParsePush.unsubscribeInBackground(channel, createSaveCallback(callbackContext));
+                ParsePush.unsubscribeInBackground(channel);
                 callbackContext.success();
             }
         });
