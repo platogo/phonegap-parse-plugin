@@ -66,13 +66,23 @@
 
 - (void)getSubscriptions: (CDVInvokedUrlCommand *)command
 {
-    NSArray *channels = [PFInstallation currentInstallation].channels;
-    if (channels == nil) {
-        channels = @[];
-    }
+    [PFPush getSubscribedChannelsInBackgroundWithBlock:
+     ^(NSSet *channelsParam, NSError *error) {
+         NSArray *channels = [channelsParam allObjects];
+         NSArray *installationObjChannels = [PFInstallation currentInstallation].channels;
 
-    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:channels];
-    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+         if (channels == nil) {
+             if (installationObjChannels == nil) {
+                 channels = @[];
+             } else {
+                 channels = installationObjChannels;
+             }
+         }
+
+         CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:channels];
+         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+     }
+    ];
 }
 
 - (void)subscribe: (CDVInvokedUrlCommand *)command
