@@ -66,8 +66,7 @@
 
 - (void)getSubscriptions: (CDVInvokedUrlCommand *)command
 {
-    [PFPush getSubscribedChannelsInBackgroundWithBlock:
-     ^(NSSet *channelsParam, NSError *error) {
+    [PFPush getSubscribedChannelsInBackgroundWithBlock:^(NSSet *channelsParam, NSError *error) {
          NSArray *channels = [channelsParam allObjects];
          NSArray *installationObjChannels = [PFInstallation currentInstallation].channels;
 
