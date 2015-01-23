@@ -17,7 +17,7 @@ import java.util.List;
 
 public class ParsePlugin extends CordovaPlugin {
     public static final String ACTION_INITIALIZE = "initialize";
-    public static final String ACTION_SET_UNIQUE_ID = "setUniqueId";
+    public static final String ACTION_SET_INSTALLATION_DATA = "setInstallationData";
     public static final String ACTION_GET_INSTALLATION_ID = "getInstallationId";
     public static final String ACTION_GET_INSTALLATION_OBJECT_ID = "getInstallationObjectId";
     public static final String ACTION_GET_SUBSCRIPTIONS = "getSubscriptions";
@@ -35,8 +35,8 @@ public class ParsePlugin extends CordovaPlugin {
             this.initialize(callbackContext);
             return true;
         }
-        if (action.equals(ACTION_SET_UNIQUE_ID)) {
-            this.setUniqueId(args.getInt(0), callbackContext);
+        if (action.equals(ACTION_SET_INSTALLATION_DATA)) {
+            this.setInstallationData(args.getInt(0), args.getString(1), args.getString(2), callbackContext);
             return true;
         }
         if (action.equals(ACTION_GET_INSTALLATION_ID)) {
@@ -91,11 +91,13 @@ public class ParsePlugin extends CordovaPlugin {
         });
     }
 
-    private void setUniqueId(final int uniqueId, final CallbackContext callbackContext) {
+    private void setInstallationData(final int uniqueId, final String locale, final String country, final CallbackContext callbackContext) {
         cordova.getThreadPool().execute(new Runnable() {
             public void run() {
                 ParseInstallation currentInstallation = ParseInstallation.getCurrentInstallation();
                 currentInstallation.put("uniqueId", uniqueId);
+                currentInstallation.put("locale", locale);
+                currentInstallation.put("country", country);
                 currentInstallation.saveEventually();
                 callbackContext.success();
             }
