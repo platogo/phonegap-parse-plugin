@@ -31,12 +31,16 @@
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
-- (void)setUniqueId:(CDVInvokedUrlCommand*) command
+- (void)setInstallationData:(CDVInvokedUrlCommand*) command
 {
     NSNumber *uniqueId = [command.arguments objectAtIndex:0];
+    NSString *locale = [command.arguments objectAtIndex:1];
+    NSString *country = [command.arguments objectAtIndex:2];
 
     PFInstallation *currentInstallation = [PFInstallation currentInstallation];
     currentInstallation[@"uniqueId"] = uniqueId;
+    currentInstallation[@"locale"] = locale;
+    currentInstallation[@"country"] = country;
 
     [currentInstallation saveEventually];
     [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_OK] callbackId:command.callbackId];
