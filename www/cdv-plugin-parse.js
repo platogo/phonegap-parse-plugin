@@ -9,13 +9,13 @@ var parsePlugin = {
         );
     },
 
-    setInstallationData: function(uniqueId, locale, country, successCallback, errorCallback) {
+    setInstallationData: function(uniqueId, language, country, successCallback, errorCallback) {
         cordova.exec(
             successCallback,
             errorCallback,
             'ParsePlugin',
             'setInstallationData',
-            [uniqueId, locale, country]
+            [uniqueId, language, country]
         );
     },
 

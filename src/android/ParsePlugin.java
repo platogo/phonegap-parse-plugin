@@ -91,12 +91,12 @@ public class ParsePlugin extends CordovaPlugin {
         });
     }
 
-    private void setInstallationData(final int uniqueId, final String locale, final String country, final CallbackContext callbackContext) {
+    private void setInstallationData(final int uniqueId, final String language, final String country, final CallbackContext callbackContext) {
         cordova.getThreadPool().execute(new Runnable() {
             public void run() {
                 ParseInstallation currentInstallation = ParseInstallation.getCurrentInstallation();
                 currentInstallation.put("uniqueId", uniqueId);
-                currentInstallation.put("locale", locale);
+                currentInstallation.put("language", language);
                 currentInstallation.put("country", country);
                 currentInstallation.saveEventually();
                 callbackContext.success();

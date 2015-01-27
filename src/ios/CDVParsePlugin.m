@@ -34,12 +34,12 @@
 - (void)setInstallationData:(CDVInvokedUrlCommand*) command
 {
     NSNumber *uniqueId = [command.arguments objectAtIndex:0];
-    NSString *locale = [command.arguments objectAtIndex:1];
+    NSString *language = [command.arguments objectAtIndex:1];
     NSString *country = [command.arguments objectAtIndex:2];
 
     PFInstallation *currentInstallation = [PFInstallation currentInstallation];
     currentInstallation[@"uniqueId"] = uniqueId;
-    currentInstallation[@"locale"] = locale;
+    currentInstallation[@"language"] = language;
     currentInstallation[@"country"] = country;
 
     [currentInstallation saveEventually];
