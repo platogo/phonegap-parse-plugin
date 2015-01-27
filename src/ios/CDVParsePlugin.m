@@ -21,7 +21,7 @@
     [Parse setApplicationId:appId clientKey:clientKey];
 
     if (self.launchOptionsForAppTracking != nil) {
-        [PFAnalytics trackAppOpenedWithLaunchOptions:self.launchOptionsForAppTracking];
+        [PFAnalytics performSelector:@selector(trackAppOpenedWithLaunchOptions:) withObject:self.launchOptionsForAppTracking afterDelay:5];
 
         NSDictionary *payload = [self.launchOptionsForAppTracking objectForKey:@"UIApplicationLaunchOptionsRemoteNotificationKey"];
         [self triggerEvent:payload];
@@ -201,7 +201,7 @@ void MethodSwizzle(Class c, SEL originalSelector) {
     if (application.applicationState == UIApplicationStateInactive) {
         // The application was just brought from the background to the foreground,
         // so we consider the app as having been "opened by a push notification."
-        [PFAnalytics trackAppOpenedWithRemoteNotificationPayload:userInfo];
+        [PFAnalytics performSelector:@selector(trackAppOpenedWithRemoteNotificationPayload:) withObject:userInfo afterDelay:5];
 
         CDVParsePlugin *parsePlugin = [self.viewController getCommandInstance:@"parseplugin"];
         [parsePlugin triggerEvent:userInfo];

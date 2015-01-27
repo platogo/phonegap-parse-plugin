@@ -13,11 +13,22 @@ import org.apache.cordova.core.ParsePlugin;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+
+import static java.util.concurrent.TimeUnit.*;
+
 public class Receiver extends ParsePushBroadcastReceiver {
 
     @Override
-    public void onPushOpen(Context context, Intent intent) {
-        ParseAnalytics.trackAppOpenedInBackground(intent);
+    public void onPushOpen(Context context, final Intent intent) {
+        final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+        scheduler.schedule(new Runnable() {
+            public void run() {
+                ParseAnalytics.trackAppOpenedInBackground(intent);
+            }
+        }, 5, SECONDS);
+
         String uriString = null;
         String jsonData = "";
         try {
@@ -27,7 +38,7 @@ public class Receiver extends ParsePushBroadcastReceiver {
         } catch (JSONException e) {
             Log.v("com.parse.ParsePushReceiver", "Unexpected JSONException when receiving push data: ", e);
         }
-        Class<? extends Activity> cls = getActivity(context, intent);
+
         Intent activityIntent;
         if (uriString != null && !uriString.isEmpty()) {
             activityIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(uriString));
