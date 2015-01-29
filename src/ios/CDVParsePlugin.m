@@ -24,7 +24,9 @@
         [PFAnalytics performSelector:@selector(trackAppOpenedWithLaunchOptions:) withObject:self.launchOptionsForAppTracking afterDelay:5];
 
         NSDictionary *payload = [self.launchOptionsForAppTracking objectForKey:@"UIApplicationLaunchOptionsRemoteNotificationKey"];
-        [self triggerEvent:payload];
+        if (payload != nil) {
+            [self triggerEvent:payload];
+        }
     }
 
     CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
@@ -144,10 +146,12 @@
 
 - (void)triggerEvent:(NSDictionary*)payload
 {
-    NSData* jsonData = [NSJSONSerialization dataWithJSONObject:payload options:0 error:nil];
-    NSString* json = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-    NSString* js = [NSString stringWithFormat:@"setTimeout('parsePlugin.onopen(%@)',0)", json];
-    [self.commandDelegate evalJs:js];
+    if ([NSJSONSerialization isValidJSONObject:payload]) {
+        NSData* jsonData = [NSJSONSerialization dataWithJSONObject:payload options:0 error:nil];
+        NSString* json = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+        NSString* js = [NSString stringWithFormat:@"setTimeout('parsePlugin.onopen(%@)',0)", json];
+        [self.commandDelegate evalJs:js];
+    }
 }
 
 @end
