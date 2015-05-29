@@ -4,6 +4,7 @@ import android.app.Application;
 import android.content.Context;
 
 import com.parse.Parse;
+import com.parse.ParseCrashReporting;
 
 public class ParseApplication extends Application {
     private static ParseApplication instance = new ParseApplication();
@@ -22,6 +23,8 @@ public class ParseApplication extends Application {
 
         int appIdResId = getResources().getIdentifier("parse_app_id", "string", getPackageName());
         int clientKeyResId = getResources().getIdentifier("parse_client_key", "string", getPackageName());
+
+        ParseCrashReporting.enable(this);
         Parse.initialize(this, getString(appIdResId), getString(clientKeyResId));
     }
 }

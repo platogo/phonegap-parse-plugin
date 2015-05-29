@@ -1,6 +1,7 @@
 #import "CDVParsePlugin.h"
 #import <Cordova/CDV.h>
 #import <Parse/Parse.h>
+#import <ParseCrashReporting/ParseCrashReporting.h>
 #import <objc/runtime.h>
 #import <objc/message.h>
 
@@ -18,6 +19,7 @@
     NSString *appId = [command.arguments objectAtIndex:0];
     NSString *clientKey = [command.arguments objectAtIndex:1];
 
+    [ParseCrashReporting enable];
     [Parse setApplicationId:appId clientKey:clientKey];
 
     if (self.launchOptionsForAppTracking != nil) {

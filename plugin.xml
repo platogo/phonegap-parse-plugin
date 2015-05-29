@@ -63,6 +63,7 @@
         </config-file>
 
         <source-file src="src/android/parse/Parse-1.9.2.jar" target-dir="libs" framework="true" />
+        <source-file src="src/android/parse/ParseCrashReporting-1.9.2.jar" target-dir="libs" framework="true" />
         <source-file src="src/android/ParsePlugin.java" target-dir="src/org/apache/cordova/core" />
         <source-file src="src/android/Receiver.java" target-dir="src/org/apache/cordova/core/parseplugin" />
         <source-file src="src/android/ParseApplication.java" target-dir="src/org/apache/cordova/core/parseplugin" />
@@ -95,6 +96,7 @@
         <framework src="Accounts.framework" />
         <framework src="libsqlite3.0.dylib" />
         <framework src="src/ios/Frameworks/Parse.framework" custom="true" />
+        <framework src="src/ios/Frameworks/ParseCrashReporting.framework" custom="true" />
     </platform>
 
 </plugin>
