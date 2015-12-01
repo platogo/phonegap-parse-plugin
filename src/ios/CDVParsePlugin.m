@@ -113,7 +113,12 @@
 
     PFInstallation *currentInstallation = [PFInstallation currentInstallation];
     NSString *channel = [command.arguments objectAtIndex:0];
-    [currentInstallation addUniqueObject:channel forKey:@"channels"];
+    // Check channels against nil as parse saves, under certain unknown circumstances NSNULL into the dictionary which crashes the app
+    if (currentInstallation.channels == nil) {
+        [currentInstallation setObject:@[channel] forKey:@"channels"];
+    } else {
+        [currentInstallation addUniqueObject:channel forKey:@"channels"];
+    }
     [currentInstallation saveEventually];
     [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_OK] callbackId:command.callbackId];
 }
