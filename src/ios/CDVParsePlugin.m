@@ -113,10 +113,6 @@
 
     PFInstallation *currentInstallation = [PFInstallation currentInstallation];
     NSString *channel = [command.arguments objectAtIndex:0];
-    if(currentInstallation.channels == nil) {
-        currentInstallation.channels = [[NSArray alloc] init];
-    }
-
     [currentInstallation addUniqueObject:channel forKey:@"channels"];
     [currentInstallation saveEventually];
     [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_OK] callbackId:command.callbackId];
