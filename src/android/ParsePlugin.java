@@ -1,7 +1,10 @@
 package org.apache.cordova.core;
 
+import android.app.Application;
 import android.content.Context;
+import android.util.Log;
 
+import com.parse.Parse;
 import com.parse.ParseInstallation;
 import com.parse.ParsePush;
 
@@ -28,6 +31,19 @@ public class ParsePlugin extends CordovaPlugin {
     private static Boolean initialized = false;
     protected static Context context = null;
     private static ArrayList<String> eventQueue = new ArrayList<String>();
+
+    public static void initializeParseWithApplication(Application app) {
+        String appId = getStringByKey(app, "parse_app_id");
+        String clientKey = getStringByKey(app, "parse_client_key");
+        Parse.enableLocalDatastore(app);
+        Log.d("ParsePlugin", "Initializing with parse_app_id: " + appId + " and parse_client_key:" + clientKey);
+        Parse.initialize(app, appId, clientKey);
+    }
+
+    private static String getStringByKey(Application app, String key) {
+        int resourceId = app.getResources().getIdentifier(key, "string", app.getPackageName());
+        return app.getString(resourceId);
+    }
 
     @Override
     public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
