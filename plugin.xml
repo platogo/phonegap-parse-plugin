@@ -97,7 +97,6 @@
         <framework src="libsqlite3.0.dylib" />
         <framework src="libstdc++.6.0.9.dylib" />
         <framework src="src/ios/Frameworks/Parse.framework" custom="true" />
-        <framework src="src/ios/Frameworks/ParseCrashReporting.framework" custom="true" />
     </platform>
 
 </plugin>
