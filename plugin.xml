@@ -56,6 +56,9 @@
           <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
           <permission android:protectionLevel="signature" android:name="$PACKAGE_NAME.permission.C2D_MESSAGE" />
           <uses-permission android:name="$PACKAGE_NAME.permission.C2D_MESSAGE" />
+        </config-file>
+
+        <config-file target="AndroidManifest.xml" parent="application">
           <meta-data android:name="com.parse.push.gcm_sender_id" android:value="id:$GCM_SENDER_ID"/>
         </config-file>
 
