@@ -36,6 +36,7 @@ public class ParsePlugin extends CordovaPlugin {
             return true;
         }
         if (action.equals(ACTION_SET_INSTALLATION_DATA)) {
+
             this.setInstallationData(args.getInt(0), args.getString(1), args.getString(2), args.getString(3), callbackContext);
             return true;
         }
